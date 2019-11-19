@@ -1,0 +1,18 @@
+index = "idx"
+corpus = "line.toml"
+stop-words = "stopwords.txt"
+dataset = "test"
+query-judgements = "train_queries_qrel.txt"
+prefix = "."
+[ranker]
+	k3 = 500
+	b = 0.750000
+	k1 = 1.20000
+	method = "bm25"
+[query-runner]
+	query-id-start = 0
+	query-path = "train_queries.json"
+[[analyzers]]
+	filter = "default-unigram-chain"
+	ngram = 1
+	method = "ngram-word"
