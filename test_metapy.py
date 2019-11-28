@@ -6,8 +6,8 @@ import re
 import traceback
 import xml.etree.ElementTree as ET
 import collections
-from search_eval import load_ranker
-from search_eval import PL2Ranker
+from pl2 import load_ranker
+from pl2 import PL2Ranker
 
 idx = metapy.index.make_inverted_index('config.toml')
 query = metapy.index.Document()
@@ -19,18 +19,37 @@ ranker = metapy.index.OkapiBM25(k1=1.2, b=0.75, k3=500.0)
 # dset = metapy.learn.Dataset(fidx)
 ev = metapy.index.IREval('config.toml')
 
-# line_number = 0
+# line_number = 1
 # dic = collections.defaultdict(lambda: 0)
 # with open('./test/test.dat', 'r') as f:
 # 	line  = f.readline()
-# 	dic[line_number] = line.split("   ")[0].split("<")[0]
+# 	actual_idx = line.split("   ")[0].split("<")[0]
+# 	dic[actual_idx] = line_number
 # 	while line:
 # 		line_number += 1
 # 		line = f.readline()
 # 		if not line: break
-# 		dic[line_number] = line.split("   ")[0].split("<")[0]
-# with open('line_to_general_file.json', 'w+') as fp:
+# 		actual_idx = line.split("   ")[0].split("<")[0]
+# 		dic[actual_idx] = line_number
+# with open('general_to_line.json', 'w+') as fp:
 # 	json.dump(dic, fp)
+
+# res = []
+# with open('general_to_line.json', 'r') as fp:
+# 	dic = json.load(fp)
+# filepath = './train_qrel.txt'
+# with open(filepath) as fp: 
+# 	for cnt, line in enumerate(fp):
+# 		ln, idx, rel = line.strip().split(" ")
+# 		if idx in dic:
+# 		# print(ln, idx, rel)
+# 			res.append(str(ln) + " " + str(dic[idx]) + " " + str(rel))
+# 	print(len(res))
+
+# with open('train_qrel_converted.txt', 'w+') as filehandle:
+#     for listitem in res:
+#         filehandle.write('%s\n' % listitem)
+
 
 # line_to_general_file = None
 # with open('line_to_general_file.json', 'r') as fp:
@@ -55,9 +74,7 @@ ev = metapy.index.IREval('config.toml')
 # writting_file.write(ret)
 # writting_file.close()
 
-line_to_general_file = None
-with open('line_to_general_file.json', 'r') as fp:
-	line_to_general_file = json.load(fp)
+
 ret = ''
 total = 0.0
 num_results = 100
@@ -66,13 +83,8 @@ with open('train_input.txt') as query_file:
 		query.content(line.strip())
 		results = ranker.score(idx, query, num_results)
 		# print(results)
-		modified_results = []
-		for doc_id, score in results:
-			doc_id = line_to_general_file[str(doc_id)]
-			print(type(doc_id))
-			ret += str(query_num) + '\t' + str(doc_id) + '\t' + str(score) + '\n'
-			modified_results.append((doc_id, score))
-		avg_p = ev.avg_p(modified_results, query_num, num_results)
+
+		avg_p = ev.avg_p(results, query_num, num_results)
 		total += avg_p
 		print("Query {} average precision: {}".format(query_num, avg_p))
 	ret = ret.strip('\n')

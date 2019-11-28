@@ -5,7 +5,7 @@ dataset = 'test'
 corpus = 'line.toml'
 index = 'idx'
 
-query-judgements = "train_qrel.txt"
+query-judgements = "train_qrel_converted.txt"
 
 [[analyzers]]
 method = 'ngram-word'
@@ -14,7 +14,7 @@ filter = 'default-unigram-chain'
 
 [query-runner]
 query-path = "train_input.txt"
-query-id-start = 0
+query-id-start = 1
 
 [ranker]
 method = "bm25"
