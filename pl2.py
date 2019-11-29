@@ -1,7 +1,17 @@
+"""
+Learning Resource:
+https://github.com/meta-toolkit/metapy/blob/master/examples/query_runner.py
+"""
+import math
+from math import log
+import sys
+import time
+import metapy
+import pytoml
+
 class PL2(metapy.index.RankingFunction):
 	def __init__(self, param=0.5):
 		self.param = param
-		# You *must* call the base class constructor here!
 		super(PL2, self).__init__()
 
 	def score_one(self, sd):
@@ -18,4 +28,3 @@ class PL2(metapy.index.RankingFunction):
 
 def load_ranker(cfg_file):
 	return PL2(5.0)
-

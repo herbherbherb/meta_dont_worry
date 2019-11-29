@@ -7,35 +7,40 @@ import traceback
 import xml.etree.ElementTree as ET
 import collections
 from pl2 import load_ranker
-from pl2 import PL2Ranker
+from pl2 import PL2
 
 idx = metapy.index.make_inverted_index('config.toml')
-query = metapy.index.Document()
-ranker = metapy.index.OkapiBM25(k1=1.2, b=0.75, k3=500.0)
+# ranker = metapy.index.OkapiBM25(k1=1.2, b=0.75, k3=500.0)
 # ranker = metapy.index.DirichletPrior(mu=100)
 # ranker = metapy.index.JelinekMercer()
-# ranker = PL2Ranker(1)
+# ranker = PL2(1)
 # fidx = metapy.index.make_forward_index('./config.toml')
 # dset = metapy.learn.Dataset(fidx)
 ev = metapy.index.IREval('config.toml')
 
-# line_number = 1
+
+# line_number = 0
 # dic = collections.defaultdict(lambda: 0)
+# reverse = collections.defaultdict(lambda: 0)
 # with open('./test/test.dat', 'r') as f:
 # 	line  = f.readline()
 # 	actual_idx = line.split("   ")[0].split("<")[0]
 # 	dic[actual_idx] = line_number
+# 	reverse[line_number] = actual_idx
 # 	while line:
 # 		line_number += 1
 # 		line = f.readline()
 # 		if not line: break
 # 		actual_idx = line.split("   ")[0].split("<")[0]
 # 		dic[actual_idx] = line_number
-# with open('general_to_line.json', 'w+') as fp:
+# 		reverse[line_number] = actual_idx
+# with open('given_idx_to_meta_idx.json', 'w+') as fp:
 # 	json.dump(dic, fp)
+# with open('meta_idx_to_given_idx.json', 'w+') as fp:
+# 	json.dump(reverse, fp)
 
 # res = []
-# with open('general_to_line.json', 'r') as fp:
+# with open('given_idx_to_meta_idx.json', 'r') as fp:
 # 	dic = json.load(fp)
 # filepath = './train_qrel.txt'
 # with open(filepath) as fp: 
@@ -51,9 +56,9 @@ ev = metapy.index.IREval('config.toml')
 #         filehandle.write('%s\n' % listitem)
 
 
-# line_to_general_file = None
-# with open('line_to_general_file.json', 'r') as fp:
-# 	line_to_general_file = json.load(fp)
+# meta_idx_to_given_idx = None
+# with open('meta_idx_to_given_idx.json', 'r') as fp:
+# 	meta_idx_to_given_idx = json.load(fp)
 # ret = ''
 # total = 0.0
 # num_results = 100
@@ -63,7 +68,7 @@ ev = metapy.index.IREval('config.toml')
 # 		results = ranker.score(idx, query, num_results)
 # 		# print(results)
 # 		for doc_id, score in results:
-# 			doc_id = line_to_general_file[str(doc_id)]
+# 			doc_id = meta_idx_to_given_idx[str(doc_id)]
 # 			ret += str(query_num) + '\t' + str(doc_id) + '\t' + str(score) + '\n'
 # 		avg_p = ev.avg_p(results, query_num, num_results)
 # 		total += avg_p
@@ -74,23 +79,48 @@ ev = metapy.index.IREval('config.toml')
 # writting_file.write(ret)
 # writting_file.close()
 
-
 ret = ''
-total = 0.0
 num_results = 100
-with open('train_input.txt') as query_file:
-	for query_num, line in enumerate(query_file):
-		query.content(line.strip())
-		results = ranker.score(idx, query, num_results)
-		# print(results)
+best_score = 0
+best_param = 0 
 
-		avg_p = ev.avg_p(results, query_num, num_results)
-		total += avg_p
-		print("Query {} average precision: {}".format(query_num, avg_p))
-	ret = ret.strip('\n')
-	query_file.close()
+for i in np.arange(10.5, 11.5, 0.1):
+	print("===" + str(i) + "===")
+	ranker = PL2(i)
+	# ranker = metapy.index.DirichletPrior(mu=100)
+	total = 0.0
+	with open('train_input.txt') as query_file:
+		for query_num, line in enumerate(query_file):
+			query = metapy.index.Document()
+			query.content(line.strip())
+			results = ranker.score(idx, query, num_results)
+			avg_p = ev.avg_p(results, query_num, num_results)
+			total += avg_p
+		print(total)
+		if total > best_score:
+			best_score = total
+			best_param = i
 
-print("Total average precision: {}".format(total))
+print(best_score, best_param)
+
+
+# ret = ''
+# total = 0.0
+# num_results = 100
+# result = []
+# with open('train_input.txt') as query_file:
+# 	for query_num, line in enumerate(query_file):
+# 		query.content(line.strip())
+# 		results = ranker.score(idx, query, num_results)
+# 		# print(results)
+
+# 		avg_p = ev.avg_p(results, query_num, num_results)
+# 		total += avg_p
+# 		print("Query {} average precision: {}".format(query_num, avg_p))
+# 	ret = ret.strip('\n')
+# 	query_file.close()
+
+# print("Total average precision: {}".format(total))
 
 """
 # Examine number of documents
@@ -102,25 +132,6 @@ idx.avg_doc_length()
 # The total number of terms
 idx.total_corpus_terms()
 """
-# idx = None
-# idx = metapy.index.make_inverted_index('./config.toml')
-# print(idx.num_docs())
-# print('Finished indexing input')
-
-# query = metapy.index.Document()
-# print(idx.unique_terms())
-# ranker = metapy.index.OkapiBM25(k1=1.2,b=0.75,k3=500)
-# ev = metapy.index.IREval('./config.toml')
-
-# fidx = metapy.index.make_forward_index('./config.toml')
-# dset = metapy.learn.Dataset(fidx) #527747
-# idx = metapy.index.make_inverted_index('./config.toml')
-# metapy.learn.tfidf_transform(dset, idx, metapy.index.OkapiBM25()) # or any other ranker
-
-# print(dset[0]. ) # (FeatureVector) that contains all of the non-zero feature counts
-# print(dset[0].id) # doc id
-
-
 
 # ranker = metapy.index.OkapiBM25()
 # query = metapy.index.Document()
