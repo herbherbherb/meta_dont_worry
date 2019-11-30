@@ -9,6 +9,7 @@ import collections
 from pl2 import load_ranker
 from pl2 import PL2
 import collections
+import pickle
 
 idx = metapy.index.make_inverted_index('config.toml')
 query = metapy.index.Document()
@@ -23,9 +24,7 @@ mapper = []
 # dset = metapy.learn.Dataset(fidx)
 
 ev = metapy.index.IREval('config.toml')
-with open('train_query.json', 'r') as fp:
-	train_query = json.load(fp)
-num_results = 5000
+
 meta_idx_to_given_idx = None
 with open('meta_idx_to_given_idx.json', 'r') as fp:
 	meta_idx_to_given_idx = json.load(fp)
@@ -43,8 +42,6 @@ for ranker in rankers:
 				dic[(str(query_num), str(actual_id))] = score
 	mapper.append(dic)
 
-
-
 feature_vector = []
 with open('./general/train_qrel.txt') as query_file:
 	for line in query_file:
@@ -54,6 +51,8 @@ with open('./general/train_qrel.txt') as query_file:
 			cur.append(dic[(queryid, doc_id)])
 		cur.append(int(label))
 		feature_vector += cur,
+		
+# pickle.dump(feature_vector, open('feature_vector.pckl', 'wb'))
 
 with open('feature_vector.txt', 'w+') as f:
 	for item in feature_vector:
