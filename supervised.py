@@ -33,76 +33,73 @@ meta_idx_to_given_idx = None
 with open('meta_idx_to_given_idx.json', 'r') as fp:
 	meta_idx_to_given_idx = json.load(fp)
 
-
 #=============================================================================
-num_results = 100000
-for ranker in rankers:
-	dic = collections.defaultdict(lambda : 0)
-	with open('train_input.txt') as query_file:
-		for query_num, line in enumerate(query_file):
-			query = metapy.index.Document()
-			query.content(line.strip())
-			results = ranker.score(idx, query, num_results)
-			for doc_id, score in results:
-				actual_id = meta_idx_to_given_idx.get(str(doc_id), "")
-				dic[(str(query_num), str(actual_id))] = score
-	mapper.append(dic)
-
-feature_vector = []
-with open('./general/train_qrel.txt') as query_file:
-	for line in query_file:
-		queryid, doc_id, label = map(str, line.strip().split(" "))
-		cur = []
-		for dic in mapper:
-			cur.append(dic[(queryid, doc_id)])
-		cur.append(int(label))
-		feature_vector += cur,
-		
-pickle.dump(feature_vector, open('feature_vector.pckl', 'wb'))
-
-# with open('feature_vector.txt', 'w+') as f:
-# 	for item in feature_vector:
-# 		f.write("%s\n" % item)
-#=============================================================================
-# logisticRegr = load('logisticRegr.joblib') 
-
-
-# num_results = 5000
-# with open('test_general.txt') as query_file:
-# 	for query_num, line in enumerate(query_file):
-# 		mapper.append(collections.defaultdict(list))
-
+# num_results = 10000
 # for ranker in rankers:
-# 	with open('test_general.txt') as query_file:
+# 	dic = collections.defaultdict(lambda : 0)
+# 	with open('train_input.txt') as query_file:
 # 		for query_num, line in enumerate(query_file):
 # 			query = metapy.index.Document()
 # 			query.content(line.strip())
 # 			results = ranker.score(idx, query, num_results)
 # 			for doc_id, score in results:
 # 				actual_id = meta_idx_to_given_idx.get(str(doc_id), "")
-# 				mapper[query_num][actual_id].append(score)
+# 				dic[(str(query_num), str(actual_id))] = score
+# 	mapper.append(dic)
 
-# ret = ''
-# with open('test_general.txt') as query_file:
-# 	for query_num, line in enumerate(query_file):
-# 		dic = mapper[query_num]
-# 		result = []
-# 		heap = []
-# 		for key in dic:
-# 			val = dic[key]
-# 			if len(val) == 4:
-# 				res = logisticRegr.predict_proba([val])[0]
-# 				label = np.argmax(res)
-# 				prob = max(res) * (label+1) * 10
-# 				heappush(heap, (-prob, key))
-# 		for i in range(100):
-# 			prob, idx = heappop(heap)
-# 			prob = -prob
-# 			ret += str(query_num) + '\t' + str(doc_id) + '\t' + str(prob) + '\n'
-# 	ret = ret.strip('\n')
-# 	query_file.close()
-# writting_file = open('General_domain_results.txt','w')
-# writting_file.write(ret)
-# writting_file.close()
+# feature_vector = []
+# with open('./general/train_qrel.txt') as query_file:
+# 	for line in query_file:
+# 		queryid, doc_id, label = map(str, line.strip().split(" "))
+# 		cur = []
+# 		for dic in mapper:
+# 			cur.append(dic[(queryid, doc_id)])
+# 		cur.append(int(label))
+# 		feature_vector += cur,
+		
+# pickle.dump(feature_vector, open('feature_vector.pckl', 'wb'))
+
+# with open('feature_vector.txt', 'w+') as f:
+# 	for item in feature_vector:
+# 		f.write("%s\n" % item)
+#=============================================================================
+logisticRegr = load('logisticRegr.joblib')
+num_results = 5000
+with open('test_general.txt') as query_file:
+	for query_num, line in enumerate(query_file):
+		mapper.append(collections.defaultdict(list))
+
+for ranker in rankers:
+	with open('test_general.txt') as query_file:
+		for query_num, line in enumerate(query_file):
+			query = metapy.index.Document()
+			query.content(line.strip())
+			results = ranker.score(idx, query, num_results)
+			for doc_id, score in results:
+				actual_id = meta_idx_to_given_idx.get(str(doc_id), "")
+				mapper[query_num][actual_id].append(score)
+
+ret = ''
+with open('test_general.txt') as query_file:
+	for query_num, line in enumerate(query_file):
+		dic = mapper[query_num]
+		result = []
+		heap = []
+		for key in dic:
+			val = dic[key]
+			if len(val) == 4:
+				res = logisticRegr.predict_proba([val])[0]
+				label = np.argmax(res)
+				prob = max(res) * (label+1) * 10
+				heappush(heap, (-prob, key))
+		for i in range(100):
+			prob, idx = heappop(heap)
+			prob = -prob
+			ret += str(query_num) + '\t' + str(idx) + '\t' + str(prob) + '\n'
+	ret = ret.strip('\n')
+	query_file.close()
+writting_file = open('General_domain_results.txt','w')
+writting_file.write(ret)
+writting_file.close()
 
 
