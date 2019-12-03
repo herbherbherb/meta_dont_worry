@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 import pickle
 from joblib import dump, load
 import collections
@@ -17,7 +18,13 @@ def main():
 	print(collections.Counter(predictions))
 	print(collections.Counter(y))
 	print(np.mean(predictions == y))
-
+	# clf = SVC(gamma='auto')
+	# clf.fit(x, y)
+	# dump(clf, 'svm.joblib')
+	# clf = load('svm.joblib')
+	# predictions = clf.predict(x)
+	# print(collections.Counter(predictions))
+	# print(np.mean(y == predictions))
 
 
 if __name__ == "__main__":
