@@ -1,0 +1,20 @@
+information retrieval
+autoencoder
+sentiment analysis
+audio visual fusion
+object detection
+gfdm
+information geometry
+augmented reality
+prolog
+wifi malware
+category theory
+smart thermostat
+spatial multi agent systems
+3 axis gantry
+cryptography
+parametric max flow
+graph drawing
+duality
+fdir
+personality trait
