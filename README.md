@@ -2,6 +2,7 @@
 
 #### Members:
 COMPETITION_ALIAS:  Don't Worry
+
 Team Members:
 * Rongzi Wang (rwang67)
 * Beichen Zhang (bzhang64)
