@@ -1,2 +1,5 @@
-Academic/idx/
+.Python
+__pycache__/
 Academic/test/
+General/test/
+General/idx/
