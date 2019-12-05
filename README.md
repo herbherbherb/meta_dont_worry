@@ -1,9 +1,12 @@
-##CS510 Search Engine Competition
-####Member:
+## CS510 Search Engine Competition:
+
+#### Members:
 Team Name:  Don't Worry
+
 * Rongzi Wang (rwang67)
 * Beichen Zhang (bzhang64)
 * Qiyang Chen (qiyangc2)
+
 ### Method 1: BM25
 - 
 ```python
@@ -15,6 +18,7 @@ python majority_voting.py
 ```python
 python majority_voting.py
 ```
+
 ### Method 3: Supervised Model
 - To preprocess the training data, for each training data point (queryid, doc_id, qrel), we use 4 rankers to each generate a score. Each data point is converted into a feature vector of dimension of 4. The processed feature vector is stored as a pickle file called feature_vector.pckl. To run the preprocess step:
 ```python
